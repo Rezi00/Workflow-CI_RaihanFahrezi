@@ -57,8 +57,7 @@ def train_model(data_file: str, n_estimators: int, max_depth: int, min_samples_s
         random_state=42,
         class_weight="balanced"
     )
-
-    with mlflow.start_run(nested=True, run_name="ci_random_forest_with_artifacts"):
+# Gunakan run yang sudah dibuat MLflow Project
         model.fit(X_train, y_train)
 
         y_pred = model.predict(X_test)
