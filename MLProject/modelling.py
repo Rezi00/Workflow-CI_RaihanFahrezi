@@ -36,7 +36,6 @@ def load_dataset(data_file: str):
 
 
 def train_model(data_file: str, n_estimators: int, max_depth: int, min_samples_split: int):
-    # Paksa MLflow memakai tracking folder relatif agar aman di Windows dan GitHub Actions.
     mlflow.set_tracking_uri("file:./mlruns")
     mlflow.set_experiment("Telco Churn CI Training")
 
@@ -57,59 +56,63 @@ def train_model(data_file: str, n_estimators: int, max_depth: int, min_samples_s
         random_state=42,
         class_weight="balanced"
     )
-# Gunakan run yang sudah dibuat MLflow Project
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred, zero_division=0)
-        recall = recall_score(y_test, y_pred, zero_division=0)
-        f1 = f1_score(y_test, y_pred, zero_division=0)
 
-        mlflow.log_param("model_type", "RandomForestClassifier")
-        mlflow.log_param("data_file", data_file)
-        mlflow.log_param("target_column", TARGET_COLUMN)
-        mlflow.log_param("n_estimators", n_estimators)
-        mlflow.log_param("max_depth", max_depth)
-        mlflow.log_param("min_samples_split", min_samples_split)
-        mlflow.log_param("random_state", 42)
-        mlflow.log_param("class_weight", "balanced")
+    model.fit(X_train, y_train)
 
-        mlflow.log_metric("accuracy", accuracy)
-        mlflow.log_metric("precision", precision)
-        mlflow.log_metric("recall", recall)
-        mlflow.log_metric("f1_score", f1)
+    y_pred = model.predict(X_test)
 
-        artifacts_dir = Path("artifacts")
-        artifacts_dir.mkdir(parents=True, exist_ok=True)
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, zero_division=0)
+    recall = recall_score(y_test, y_pred, zero_division=0)
+    f1 = f1_score(y_test, y_pred, zero_division=0)
 
-        model_path = artifacts_dir / "random_forest_telco_churn.joblib"
-        joblib.dump(model, model_path)
+    mlflow.log_param("model_type", "RandomForestClassifier")
+    mlflow.log_param("data_file", data_file)
+    mlflow.log_param("target_column", TARGET_COLUMN)
+    mlflow.log_param("n_estimators", n_estimators)
+    mlflow.log_param("max_depth", max_depth)
+    mlflow.log_param("min_samples_split", min_samples_split)
+    mlflow.log_param("random_state", 42)
+    mlflow.log_param("class_weight", "balanced")
 
-        report_path = artifacts_dir / "classification_report.txt"
-        report = classification_report(
-            y_test,
-            y_pred,
-            target_names=["No Churn", "Churn"],
-            zero_division=0
-        )
-        report_path.write_text(report, encoding="utf-8")
+    mlflow.log_metric("accuracy", accuracy)
+    mlflow.log_metric("precision", precision)
+    mlflow.log_metric("recall", recall)
+    mlflow.log_metric("f1_score", f1)
 
-        cm_path = artifacts_dir / "confusion_matrix.csv"
-        cm = confusion_matrix(y_test, y_pred)
-        pd.DataFrame(
-            cm,
-            index=["actual_no_churn", "actual_churn"],
-            columns=["pred_no_churn", "pred_churn"]
-        ).to_csv(cm_path, index=True)
+    artifacts_dir = Path("artifacts")
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
 
-        # Log artifact folder dengan path relatif, bukan path Windows absolut.
-        mlflow.log_artifacts(str(artifacts_dir), artifact_path="training_artifacts")
+    model_path = artifacts_dir / "random_forest_telco_churn.joblib"
+    joblib.dump(model, model_path)
 
-        mlflow.sklearn.log_model(
-            sk_model=model,
-            artifact_path="model",
-            input_example=X_train.head(5)
-        )
+    report_path = artifacts_dir / "classification_report.txt"
+    report = classification_report(
+        y_test,
+        y_pred,
+        target_names=["No Churn", "Churn"],
+        zero_division=0
+    )
+    report_path.write_text(report, encoding="utf-8")
+
+    cm_path = artifacts_dir / "confusion_matrix.csv"
+    cm = confusion_matrix(y_test, y_pred)
+    pd.DataFrame(
+        cm,
+        index=["actual_no_churn", "actual_churn"],
+        columns=["pred_no_churn", "pred_churn"]
+    ).to_csv(cm_path, index=True)
+
+    mlflow.log_artifacts(
+        str(artifacts_dir),
+        artifact_path="training_artifacts"
+    )
+
+    mlflow.sklearn.log_model(
+        sk_model=model,
+        artifact_path="model",
+        input_example=X_train.head(5)
+    )
 
     print("=" * 60)
     print("Training CI selesai")
@@ -137,4 +140,4 @@ if __name__ == "__main__":
         n_estimators=args.n_estimators,
         max_depth=args.max_depth,
         min_samples_split=args.min_samples_split
-    )
+    )    
