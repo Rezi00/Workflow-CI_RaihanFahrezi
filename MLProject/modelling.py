@@ -58,7 +58,7 @@ def train_model(data_file: str, n_estimators: int, max_depth: int, min_samples_s
         class_weight="balanced"
     )
 
-    with mlflow.start_run(run_name="ci_random_forest_with_artifacts"):
+    with mlflow.start_run(nested=True, run_name="ci_random_forest_with_artifacts"):
         model.fit(X_train, y_train)
 
         y_pred = model.predict(X_test)
