@@ -36,9 +36,6 @@ def load_dataset(data_file: str):
 
 
 def train_model(data_file: str, n_estimators: int, max_depth: int, min_samples_split: int):
-    mlflow.set_tracking_uri("file:./mlruns")
-    mlflow.set_experiment("Telco Churn CI Training")
-
     X, y = load_dataset(data_file)
 
     X_train, X_test, y_train, y_test = train_test_split(
@@ -140,4 +137,4 @@ if __name__ == "__main__":
         n_estimators=args.n_estimators,
         max_depth=args.max_depth,
         min_samples_split=args.min_samples_split
-    )    
+    )
