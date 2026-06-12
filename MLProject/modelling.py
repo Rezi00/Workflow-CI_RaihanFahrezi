@@ -59,9 +59,7 @@ def train_model(data_file: str, n_estimators: int, max_depth: int, min_samples_s
     )
 # Gunakan run yang sudah dibuat MLflow Project
         model.fit(X_train, y_train)
-
         y_pred = model.predict(X_test)
-
         accuracy = accuracy_score(y_test, y_pred)
         precision = precision_score(y_test, y_pred, zero_division=0)
         recall = recall_score(y_test, y_pred, zero_division=0)
