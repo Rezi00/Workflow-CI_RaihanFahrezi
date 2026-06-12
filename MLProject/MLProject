@@ -1,0 +1,10 @@
+name: telco-churn-classification-ci
+
+entry_points:
+  main:
+    parameters:
+      data_file: {type: str, default: "telco_churn_preprocessed.csv"}
+      n_estimators: {type: int, default: 200}
+      max_depth: {type: int, default: 10}
+      min_samples_split: {type: int, default: 5}
+    command: "python modelling.py --data_file {data_file} --n_estimators {n_estimators} --max_depth {max_depth} --min_samples_split {min_samples_split}"
